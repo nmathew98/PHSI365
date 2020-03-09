@@ -1,0 +1,2314 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<img src=\"resources/physicsOtago.png\" width=\"600\">\n",
+    "\n",
+    "$$\n",
+    "\\def\\julia{\\texttt{julia}}\n",
+    "\\def\\dashint{{\\int\\!\\!\\!\\!\\!\\!-\\,}}\n",
+    "\\def\\infdashint{\\dashint_{\\!\\!\\!-\\infty}^{\\,\\infty}}\n",
+    "\\def\\D{\\,{\\rm d}}\n",
+    "\\def\\E{{\\rm e}}\n",
+    "\\def\\dx{\\D x}\n",
+    "\\def\\dt{\\D t}\n",
+    "\\def\\dz{\\D z}\n",
+    "\\def\\C{{\\mathbb C}}\n",
+    "\\def\\R{{\\mathbb R}}\n",
+    "\\def\\CC{{\\cal C}}\n",
+    "\\def\\HH{{\\cal H}}\n",
+    "\\def\\I{{\\rm i}}\n",
+    "\\def\\Res_#1{\\underset{#1}{\\rm Res}}\\,\n",
+    "\\def\\sech{{\\rm sech}\\,}\n",
+    "\\def\\vc#1{{\\mathbf #1}}\n",
+    "\\def\\qq{\\qquad\\qquad}\n",
+    "\\def\\qfor{\\qquad\\hbox{for}\\qquad}\n",
+    "\\def\\qwhere{\\qquad\\hbox{where}\\qquad}\n",
+    "\\def\\ale#1{\\begin{align}#1\\end{align}}\n",
+    "\\def\\em{\\epsilon_m}\n",
+    "\\def\\unit#1{{\\rm #1}}\n",
+    "$$\n",
+    "\n",
+    "# PHSI 365: Computational Physics <img align=\"right\" src=\"resources/3dquenchslab.gif\" width=\"500\" height=\"500\">\n",
+    "\n",
+    "University of Otago 2020\n",
+    "\n",
+    "Ashton Bradley (Coordinator)\n",
+    "<br>\n",
+    "ashton.bradley@otago.ac.nz\n",
+    "<br>\n",
+    "\n",
+    "_Image made with_ [Makie.jl](https://github.com/JuliaPlots/Makie.jl)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "# Introduction to Julia II"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Finding information\n",
+    "- If you want more than the built-in documentation search, try using google to search the entire website. E.g. Try entering the following search into google `site:https://docs.julialang.org Array` and see what it generates.\n",
+    "- I won't be using [Juno](https://junolab.org/) in this course, but it is installed on the lab machines, and you are welcome to use it if you prefer a gui (you will need to submit notebooks for grading though). To launch, open a terminal, and type `atom` [enter] (built on github's nice text editor [atom](https://www.youtube.com/watch?v=Y7aEiVwBAdk&feature=youtu.be). It has a few advantages if you are writing a lot of code and don't want an integrated scientific document. In particular, it has a nice [fuzzy finder](https://en.wikipedia.org/wiki/Approximate_string_matching) which will do a pretty complete search of all documentation loaded into the current julia session.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "# Numbers, types, functions"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## e-notation\n",
+    "Some essential input shorthand should be established. We very often need to enter large numbers, for example:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "3141000000"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = 3141000000"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A much more convenient (and easier to error-check) way to do this is"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "3.141e9"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y = 3.141e9  "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "However, there is a crucial difference between these two numbers:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(Float64, Int64)"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "typeof(y),typeof(x)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "they are fundamentaly different data types: in __e-notation__ we specify `Float64` numbers, rather than integers."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Operations, e.g. division, will still yield a well-defined result due to type conversion"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1.0"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y/x "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The convention is that the numbers after `e` are the power of 10 for the number, in `Float64`, so this is a shorthand for \n",
+    "\n",
+    "$$3141\\times 10^{6}$$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "3.141f6"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#If we instead say\n",
+    "z = 3.141f6"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Float32"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "typeof(z)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "so that __f-notation__ allows input of `Float32` (single-precision) numbers in an analogous manner (there could be others, but `d` and `g` aren't special in this way). We will say more about numerical accuracy and number representations in the next lecture."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Range objects\n",
+    "Julia makes use of special kind of object for doing __efficient iteration__ over collections, called a range object. Let's see how this works:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1:2:9999"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "myrange = 1:2:10000"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "just a shorthand for the sequence of numbers `startvalue:stepsize:stopvalue`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "StepRange{Int64,Int64}"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "typeof(myrange)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "OrdinalRange{Int64,Int64}"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "supertype(typeof(myrange))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "typeof(myrange)<:OrdinalRange "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The `<:` command asks if the left type __is a subtype of__ the right type. In this case, `OrdinalRange` is the supertype of these range objects, so the result is `true`. \n",
+    "\n",
+    "Types form a logical hierarchy in `julia` that allows function behaviour to be tied to the specific types af data that are being passed to the function (this is \"optionally typed\"). "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Loops \n",
+    "There are a number of very nice functions that help with iteration-like commands, in particular in the context of `for` and `while` loops. \n",
+    "\n",
+    "Two of the most useful are `eachindex()`, and `enumerate()`. Let's see how these work in loops.\n",
+    "\n",
+    "We have seen how to write basic `for` loops in Lab1. Let's review with some examples."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4999850001"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Find the sum of the first N integers\n",
+    "N = 99998\n",
+    "s = 0\n",
+    "for i in 1:N # note the use of \"in\" instead of = here\n",
+    "    s += i\n",
+    "end\n",
+    "s"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Check against the analytical result (Gauss)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4.999850001e9"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "N*(N+1)/2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4999850001"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Int(ans) # convert a Float64 to an Int64 if possible (i.e. if it has no non-integer part)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can summarize this as a little function which ensures the ouput is an integer:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "sumgauss (generic function with 1 method)"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sumgauss(N) = N*(N+1)/2 |> Int"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4999850001"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sumgauss(N)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's say we have a time series of data `x`, sampled at 1000 times:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1000-element Array{Float64,1}:\n",
+       "  0.5430432929100125 \n",
+       "  1.524691929336536  \n",
+       " -1.5039374519925897 \n",
+       " -0.7911642229803135 \n",
+       " -0.6421318337169633 \n",
+       "  0.689762773659667  \n",
+       "  2.744216750301623  \n",
+       " -0.17122455706291162\n",
+       " -1.1484926838159804 \n",
+       " -0.22093839973652635\n",
+       "  0.3508300154293322 \n",
+       " -0.23117641374960174\n",
+       " -0.6189061110191032 \n",
+       "  ⋮                  \n",
+       "  1.1024606381869173 \n",
+       "  2.096279536339154  \n",
+       " -0.19757039382050082\n",
+       " -0.29532454947436504\n",
+       "  0.4935272294319918 \n",
+       " -0.5653805680451759 \n",
+       " -1.2958353031435432 \n",
+       "  0.8081697704009061 \n",
+       "  1.2185061918783378 \n",
+       "  1.5901313888190558 \n",
+       " -1.2449098266761243 \n",
+       " -0.14053971367962315"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "N=1000\n",
+    "x=randn(N) # samples from the normal distribution, mean zero, variance one. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can step through and compute something from the series using a for loop:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y = zero(x); # initialize array of zeros of the same type"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1000-element Array{Float64,1}:\n",
+       " 0.2948960179745497  \n",
+       " 2.324685479383968   \n",
+       " 2.261827859505963   \n",
+       " 0.6259408277240432  \n",
+       " 0.41233329187270973 \n",
+       " 0.475772683926677   \n",
+       " 7.530725572635999   \n",
+       " 0.02931784894139028 \n",
+       " 1.3190354447788335  \n",
+       " 0.0488137764781371  \n",
+       " 0.12308169972614545 \n",
+       " 0.053442534274127054\n",
+       " 0.3830447742567905  \n",
+       " ⋮                   \n",
+       " 1.215419458751505   \n",
+       " 4.394387894474298   \n",
+       " 0.039034060514387785\n",
+       " 0.08721658952223668 \n",
+       " 0.24356912619081786 \n",
+       " 0.31965518672308574 \n",
+       " 1.6791891328731186  \n",
+       " 0.6531383777898533  \n",
+       " 1.4847573396458484  \n",
+       " 2.5285178337076193  \n",
+       " 1.5498004765547777  \n",
+       " 0.019751411121150454"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Square each element by loop through the vector\n",
+    "for i in 1:N\n",
+    "    y[i] = x[i]^2\n",
+    "end\n",
+    "y"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Another way to achieve the same result:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "z = zero(x) # allocates memory, but doesn't set it to anything meaningful\n",
+    "for i in eachindex(x)\n",
+    "    z[i] = x[i].^2 # we can then write to z\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's do a simple check of equivalence of our two results:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "z==y # are the values in the two arrays are the same?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "false"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "z===y # are the data and physical addresses in memory the same?"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Another way to achieve the same thing that can be quite useful is `enumerate`, which gives us both a counter (iterator), and the value for the given value of counter, so we can work with inside the loop:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "for (i,xi) in enumerate(x) # declaring name of counter and variable it counts\n",
+    "    z[i] = xi^2 # x is the i'th element of x\n",
+    "end\n",
+    "z==y"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- Note that we didn't have to say how big `x` is, so the code is less \"brittle\". \n",
+    "- These generic commands like `zero` and `eachindex` and `enumerate` can make working with loops a bit more robust and general, and also help the transition from specific code to general functions. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "# Functions II\n",
+    "More typically, our function is too large to fit in one line and we want to define a block of code to take some sensible inputs, do something useful, and return an output. It is important to be familiar with some basic scoping rules in `julia`. This should also help clarify why we want to write (good) functions whenever possible.\n",
+    "\n",
+    "There are two main levels of scope for variables in julia:\n",
+    "1. Global (available everywhere, can lead to slow code)\n",
+    "2. Local (can be nested)\n",
+    "\n",
+    "__The interior of function falls into the second category.__\n",
+    "\n",
+    "Sounds simple on the face of it, but there are a couple of subtleties.\n",
+    "\n",
+    "We need to be aware of two rules in julia:\n",
+    "\n",
+    "<div class=\"alert alert-block alert-info\">\n",
+    "1. Privacy: Declared variables (named in the function header, or defined within the function) are private to the function\n",
+    "</div>\n",
+    "\n",
+    "<div class=\"alert alert-block alert-info\">\n",
+    "2. Context: The function has access to all external variables that sit at the same level of scope as the function declaration; functions can make use of the context in which they are called.\n",
+    "</div>\n",
+    "\n",
+    "The corollary is, every variable that you declare as normal in a julia session is __global__. In other words, code run in the REPL, or a jupyter cell (outside a function body) is in __global scope__. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's see how this works with a simple example:\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "g (generic function with 1 method)"
+      ]
+     },
+     "execution_count": 29,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x=2\n",
+    "function g(y)\n",
+    "    return x+y\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- Here `y` is private, and `x` is available inside `g(y)`: we declared the function at the same scope as the definition of `x`.\n",
+    "\n",
+    "- The code will run even thought we aren't explicitly passing `x`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "g(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- The function `g(y)` responds to changes in `x`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "13"
+      ]
+     },
+     "execution_count": 31,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x=10;g(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "While less \"safe\" than some other languages, this allows functions to be more focused on a specific task associated with particular inputs, i.e, in the context of solving a problem\n",
+    "\n",
+    "> *you don't have to pass half your workspace to get something done!*\n",
+    "\n",
+    "It also allows functions to also have context-specific behavior.\n",
+    "\n",
+    "Whether this is a good or bad thing may depend on your personal standpoint on langauge design. \n",
+    "\n",
+    "We should be clear here that this discussion is mostly for the sake of completeness: in practice you will most likely not encounter the problem, but it is important to be aware of how functions work in `julia`. Usually people take care to make all of their variables private to a function, but just be aware that it is not a _requirement_ (it is strictly enforced for package code, which is why developers care a lot less about it...). "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "## Type stability\n",
+    "A central concept in `julia` is the notion of ___type stability___:\n",
+    "\n",
+    "<div class=\"alert alert-block alert-info\">\n",
+    "A function is said to be type stable if it is possible to infer the data type of the outputs by inspection of the data types of the inputs, and the code inside the function.\n",
+    "</div>\n",
+    "\n",
+    "In practice the compiler is pretty good at doing this inspection, provided we obey some simple rules when writing our code.\n",
+    "\n",
+    "We have seen that there are many convenient methods for type conversion\n",
+    "- [Float32](https://docs.julialang.org/en/v1/base/numbers/#Core.Float32-Tuple{Any}), [Float64](https://docs.julialang.org/en/v1/base/numbers/#Core.Float64-Tuple{Any}), [big](https://docs.julialang.org/en/v1/base/numbers/#Base.big), [complex](https://docs.julialang.org/en/v1/base/numbers/#Base.complex-Tuple{Complex}), etc\n",
+    "- these all support dot-calls\n",
+    "- `.|>` is pretty useful, as are\n",
+    "- [zero](https://docs.julialang.org/en/v1/base/numbers/#Base.zero), [one](https://docs.julialang.org/en/v1/base/numbers/#General-Number-Functions-and-Constants-1), [similar](https://docs.julialang.org/en/v1/base/arrays/#Base.similar)\n",
+    "\n",
+    "The latter are examples of methods that help to ensure type stability: by initializing the right data types (e.g. `zero(x)`), your code can remain type-stable throughout, ensuring the most efficient julia output. We will see an example that uses this shortly."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "## Geometric series\n",
+    "Let's make a little function to evaluate the geometric series up to a given polynomial degree $N$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "geomSum"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\"\"\"\n",
+    "    geomSum(x,N)\n",
+    "\n",
+    "Numerically sum `N` terms of the geometric series.\n",
+    "\"\"\"\n",
+    "function geomSum(x,N)\n",
+    "    y = 0 # ??? is this a good choice ???\n",
+    "    for k = 0:N-1\n",
+    "        y += x^k\n",
+    "    end\n",
+    "    return y\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "search: \u001b[0m\u001b[1mg\u001b[22m\u001b[0m\u001b[1me\u001b[22m\u001b[0m\u001b[1mo\u001b[22m\u001b[0m\u001b[1mm\u001b[22m\u001b[0m\u001b[1mS\u001b[22m\u001b[0m\u001b[1mu\u001b[22m\u001b[0m\u001b[1mm\u001b[22m \u001b[0m\u001b[1mg\u001b[22m\u001b[0m\u001b[1me\u001b[22mt_zer\u001b[0m\u001b[1mo\u001b[22m_subnor\u001b[0m\u001b[1mm\u001b[22mal\u001b[0m\u001b[1ms\u001b[22m\n",
+      "\n"
+     ]
+    },
+    {
+     "data": {
+      "text/latex": [
+       "\\begin{verbatim}\n",
+       "geomSum(x,N)\n",
+       "\\end{verbatim}\n",
+       "Numerically sum \\texttt{N} terms of the geometric series.\n",
+       "\n"
+      ],
+      "text/markdown": [
+       "```\n",
+       "geomSum(x,N)\n",
+       "```\n",
+       "\n",
+       "Numerically sum `N` terms of the geometric series.\n"
+      ],
+      "text/plain": [
+       "\u001b[36m  geomSum(x,N)\u001b[39m\n",
+       "\n",
+       "  Numerically sum \u001b[36mN\u001b[39m terms of the geometric series."
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "?geomSum"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "and compare with the analytical result:\n",
+    "\n",
+    "<div class=\"alert alert-block alert-warning\"><font color=blue>\n",
+    "    \n",
+    "$$S_N=\\sum_{k=0}^{N-1}x^k=1+x+x^2+x^3\\dots+x^{N-1}=\\frac{1-x^N}{1-x}$$\n",
+    "</font></div>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "geomExact"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# here @doc raw lets you write plain latex; without it, you need to do e.g. \\\\sum\n",
+    "@doc raw\"\"\"\n",
+    "    geomExact(x,N)\n",
+    "\n",
+    "Analytically sum the first `N` terms of the geometric series\n",
+    "\n",
+    "$$S_N=\\sum_{k=0}^{N-1}x^k=\\frac{1-x^N}{1-x}.$$\n",
+    "\"\"\"\n",
+    "geomExact(x,N)=(1-x^N)/(1-x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "search: \u001b[0m\u001b[1mg\u001b[22m\u001b[0m\u001b[1me\u001b[22m\u001b[0m\u001b[1mo\u001b[22m\u001b[0m\u001b[1mm\u001b[22m\u001b[0m\u001b[1mE\u001b[22m\u001b[0m\u001b[1mx\u001b[22m\u001b[0m\u001b[1ma\u001b[22m\u001b[0m\u001b[1mc\u001b[22m\u001b[0m\u001b[1mt\u001b[22m\n",
+      "\n"
+     ]
+    },
+    {
+     "data": {
+      "text/latex": [
+       "\\begin{verbatim}\n",
+       "geomExact(x,N)\n",
+       "\\end{verbatim}\n",
+       "Analytically sum the first \\texttt{N} terms of the geometric series\n",
+       "\n",
+       "$$S_N=\\sum_{k=0}^{N-1}x^k=\\frac{1-x^N}{1-x}.$$\n"
+      ],
+      "text/markdown": [
+       "```\n",
+       "geomExact(x,N)\n",
+       "```\n",
+       "\n",
+       "Analytically sum the first `N` terms of the geometric series\n",
+       "\n",
+       "$$\n",
+       "S_N=\\sum_{k=0}^{N-1}x^k=\\frac{1-x^N}{1-x}.\n",
+       "$$\n"
+      ],
+      "text/plain": [
+       "\u001b[36m  geomExact(x,N)\u001b[39m\n",
+       "\n",
+       "  Analytically sum the first \u001b[36mN\u001b[39m terms of the geometric series\n",
+       "\n",
+       "\u001b[35mS_N=\\sum_{k=0}^{N-1}x^k=\\frac{1-x^N}{1-x}.\u001b[39m"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "?geomExact"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Our two functions should achieve the same result, but what do we mean by that?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(31.74824973581979, 31.748249735819783)"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x=0.97\n",
+    "N=100\n",
+    "geomSum(x,N),geomExact(x,N)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "__Codequiz: what am I doing here?__"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "≈ (generic function with 1 method)"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "using LinearAlgebra\n",
+    "≈(a,b) = norm(a-b)<1e-14  "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "geomSum(x,N) ≈ geomExact(x,N)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "and we can note a small arithmetic error in the last few digits. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Dot-calls, broadcasting\n",
+    "So far, we have only defined our function for scalar inputs. At least, that is what we intended to do. In `julia`, it is often very straightforward to evaluate a scalar funtion for arrays of numbers.\n",
+    "\n",
+    "Let's redefine our function, this time using `zero(x)` to initialize the geometric series "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "geomSum"
+      ]
+     },
+     "execution_count": 22,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "@doc raw\"\"\"\n",
+    "    geomSum(x,N)\n",
+    "\n",
+    "Numerically sum the first `N` terms of the geometric series\n",
+    "\n",
+    "$$S_N=\\sum_{k=0}^{N-1}x^k=\\frac{1-x^N}{1-x}.$$\n",
+    "\"\"\"\n",
+    "function geomSum(x,N)\n",
+    "    y = zero(x) # phew, that's better - function is now type stable! \n",
+    "    for k in 0:N-1\n",
+    "        y += x^k\n",
+    "    end\n",
+    "    return y\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "__Codequiz: How do we know if a function is type stable?__"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Variables\n",
+      "  #self#\u001b[36m::Core.Compiler.Const(geomSum, false)\u001b[39m\n",
+      "  x\u001b[36m::Float64\u001b[39m\n",
+      "  N\u001b[36m::Int64\u001b[39m\n",
+      "  y\u001b[36m::Float64\u001b[39m\n",
+      "  @_5\u001b[33m\u001b[1m::Union{Nothing, Tuple{Int64,Int64}}\u001b[22m\u001b[39m\n",
+      "  k\u001b[36m::Int64\u001b[39m\n",
+      "\n",
+      "Body\u001b[36m::Float64\u001b[39m\n",
+      "\u001b[90m1 ─\u001b[39m       (y = Main.zero(x))\n",
+      "\u001b[90m│  \u001b[39m %2  = (N - 1)\u001b[36m::Int64\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m %3  = (0:%2)\u001b[36m::Core.Compiler.PartialStruct(UnitRange{Int64}, Any[Core.Compiler.Const(0, false), Int64])\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m       (@_5 = Base.iterate(%3))\n",
+      "\u001b[90m│  \u001b[39m %5  = (@_5 === nothing)\u001b[36m::Bool\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m %6  = Base.not_int(%5)\u001b[36m::Bool\u001b[39m\n",
+      "\u001b[90m└──\u001b[39m       goto #4 if not %6\n",
+      "\u001b[90m2 ┄\u001b[39m %8  = @_5::Tuple{Int64,Int64}\u001b[36m::Tuple{Int64,Int64}\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m       (k = Core.getfield(%8, 1))\n",
+      "\u001b[90m│  \u001b[39m %10 = Core.getfield(%8, 2)\u001b[36m::Int64\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m %11 = y\u001b[36m::Float64\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m %12 = (x ^ k)\u001b[36m::Float64\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m       (y = %11 + %12)\n",
+      "\u001b[90m│  \u001b[39m       (@_5 = Base.iterate(%3, %10))\n",
+      "\u001b[90m│  \u001b[39m %15 = (@_5 === nothing)\u001b[36m::Bool\u001b[39m\n",
+      "\u001b[90m│  \u001b[39m %16 = Base.not_int(%15)\u001b[36m::Bool\u001b[39m\n",
+      "\u001b[90m└──\u001b[39m       goto #4 if not %16\n",
+      "\u001b[90m3 ─\u001b[39m       goto #2\n",
+      "\u001b[90m4 ┄\u001b[39m       return y\n"
+     ]
+    }
+   ],
+   "source": [
+    "@code_warntype geomSum(.1,3) # we can call it for specific inputs, with a nice macro"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "let's test convergence of our series:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5×1 Adjoint{Float64,Array{Float64,2}}:\n",
+       " 0.1\n",
+       " 0.2\n",
+       " 0.3\n",
+       " 0.6\n",
+       " 0.9"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Nvals = [1 5 10 20 30]\n",
+    "xvals = [0.1 0.2 0.3 0.6 0.9]' # transpose"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "MethodError",
+     "evalue": "MethodError: no method matching -(::Array{Int64,2}, ::Int64)\nClosest candidates are:\n  -(!Matched::Complex{Bool}, ::Real) at complex.jl:303\n  -(!Matched::Missing, ::Number) at missing.jl:115\n  -(!Matched::Base.CoreLogging.LogLevel, ::Integer) at logging.jl:107\n  ...",
+     "output_type": "error",
+     "traceback": [
+      "MethodError: no method matching -(::Array{Int64,2}, ::Int64)\nClosest candidates are:\n  -(!Matched::Complex{Bool}, ::Real) at complex.jl:303\n  -(!Matched::Missing, ::Number) at missing.jl:115\n  -(!Matched::Base.CoreLogging.LogLevel, ::Integer) at logging.jl:107\n  ...",
+      "",
+      "Stacktrace:",
+      " [1] geomSum(::Adjoint{Float64,Array{Float64,2}}, ::Array{Int64,2}) at ./In[22]:10",
+      " [2] top-level scope at In[26]:1"
+     ]
+    }
+   ],
+   "source": [
+    "geomSum(xvals,Nvals)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5×5 Array{Float64,2}:\n",
+       " 1.0  1.1111  1.11111  1.11111  1.11111\n",
+       " 1.0  1.2496  1.25     1.25     1.25   \n",
+       " 1.0  1.4251  1.42856  1.42857  1.42857\n",
+       " 1.0  2.3056  2.48488  2.49991  2.5    \n",
+       " 1.0  4.0951  6.51322  8.78423  9.57609"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "geomSum.(xvals,Nvals) # dot-call and broadcasting: the transpose was essential!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- Write (any) scalar function and get an array function for free!\n",
+    "- Over any set of parameters we choose!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Function names are variables\n",
+    "We can also use a **while loop** with our finite series to evaluate the infinite series to desired numerical precision and test against the analytical result."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "geomInf"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\"\"\"\n",
+    "    geomInf(x)\n",
+    "\n",
+    "Sum up the geometric series, accurate to ~1e-16\n",
+    "\"\"\"\n",
+    "function geomInf(x,finiteSeries=geomSum,ϵ=1e-16)\n",
+    "    N = 1\n",
+    "    Sn = geomSum(x,N)\n",
+    "    ΔS = abs(geomSum(x,N+1)-Sn)/Sn # compare sum to N with sum to N+1\n",
+    "    while ΔS > ϵ\n",
+    "        N += 1\n",
+    "        Sn = geomSum(x,N)\n",
+    "        ΔS = abs(geomSum(x,N+1)-Sn)/Sn\n",
+    "    end\n",
+    "    return Sn, N\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(33.3333333333332, 1093)"
+      ]
+     },
+     "execution_count": 31,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = 0.97\n",
+    "geomInf(x)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's go for one level of abstraction: since function names are variables, we can make the replacement with any finite sum by introducing a new variable\n",
+    "\n",
+    "`geomSum` -> `finiteSum`\n",
+    "\n",
+    "We will do this be defining a default input, allowing us to first test our function, and then allow it to accept other finite sums to be evaluated to high precision."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "sumInf"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\"\"\"\n",
+    "    sumInf(x,finiteSum=geomSum,ϵ=1e-16)\n",
+    "\n",
+    "Evaluate the series `finiteSum` to precision given by `ϵ`.  \n",
+    "\"\"\"\n",
+    "function sumInf(x,finiteSum=geomSum,ϵ=1e-16)\n",
+    "    N = 1\n",
+    "    Sn = finiteSum(x,N) \n",
+    "    ΔS = abs(finiteSum(x,N+1)-Sn)/Sn\n",
+    "    while ΔS > ϵ\n",
+    "        N += 1\n",
+    "        Sn = finiteSum(x,N)\n",
+    "        ΔS = abs(finiteSum(x,N+1)-Sn)/Sn\n",
+    "    end\n",
+    "    return Sn, N\n",
+    "end"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1.97"
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = 0.97\n",
+    "geomSum(x,2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "12.224960362107018"
+      ]
+     },
+     "execution_count": 44,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "geomSum(x,15)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Infinite geometric series: the parital sums $S_N$ converge to \n",
+    "\n",
+    "<div class=\"alert alert-block alert-warning\"><font color=blue>\n",
+    "    \n",
+    "$$S\\equiv\\sum_{k=0}^{\\infty}x^k=\\frac{1}{1-x},\\quad \\text{provided}\\quad |x|<1$$\n",
+    "</div></font>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "geomA (generic function with 1 method)"
+      ]
+     },
+     "execution_count": 45,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "geomA(x)=1/(1-x) # N→∞ limit"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(33.3333333333332, 1093)"
+      ]
+     },
+     "execution_count": 46,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = 0.97\n",
+    "sumInf(x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "33.33333333333331"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "geomA(x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(9.999999999999993, 329)"
+      ]
+     },
+     "execution_count": 48,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = .9 # smaller x should require less terms\n",
+    "y1 = sumInf(x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "10.000000000000002"
+      ]
+     },
+     "execution_count": 49,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y2 = geomA(x)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "# Flow control and relationals\n",
+    "To finish, we will examine some common logic operations such as AND, and OR.\n",
+    "\n",
+    "We have already met methods for determining equivalence of variables: `==` (value) and `===` (both value and physical memory). "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Ternary operator\n",
+    "Let's use the[ternary operator]() to define a Kronecker-$\\delta$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "δ (generic function with 1 method)"
+      ]
+     },
+     "execution_count": 59,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "δ(i,j) = i==j ? 1 : 0"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The ternary operator says `if (condition true)? (do this) : (else do this)`\n",
+    "\n",
+    "- It turns out we can apply this to many kinds of inputs. Why?\n",
+    "- Can you see how to make the array `B` from above by broadcasting?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(0, 0, 1, 1)"
+      ]
+     },
+     "execution_count": 60,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "δ(0,1),δ(0.,1.),δ(1,1),δ(1.,1.)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(1, 0)"
+      ]
+     },
+     "execution_count": 61,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "δ(\"a\",\"a\"),δ(\"a\",\"b\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 62,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0"
+      ]
+     },
+     "execution_count": 62,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "δ(3,\"icecream\") "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 64,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1"
+      ]
+     },
+     "execution_count": 64,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "δ(\"icecream\",\"icecream\") "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "___Exercise:___ 1. Redirect (`|>`) the output of the above to `typeof`; is the method is type stable? 2. Change the output to be logical (`true`, `false`). 3. Change the output to be `Float64`."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can even get sensible answers to questions about the equivalence of different types of data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x=[0,0,1,0,0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y=x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "δ(x,y)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Equivalence and variable assignment"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "When are two variables equivalent in julia?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y = randn(100)\n",
+    "a = y; # assigns label \"a\" to variable y (a now points to y)\n",
+    "b = copy(y); # makes a new variable b in memory"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 52,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a===y # tells us if the variable is identical physically a==y,a===y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(true, true)"
+      ]
+     },
+     "execution_count": 53,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a==y,a===y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(true, false)"
+      ]
+     },
+     "execution_count": 54,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a==b,a===b"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.6274315830976688"
+      ]
+     },
+     "execution_count": 55,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y[2]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2.0"
+      ]
+     },
+     "execution_count": 56,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a[2]=2.0; y[2] #careful here!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a===y #still the same since they point to the same memory! "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "> `a` and `y` are both just pointers to the same memory address. If I change `a` I also change `y`. This is not true for `b`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "b[2]=pi; y[2]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## More examples"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x=rand(20)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y = similar(x) #create an empty array of the same type (Float64)\n",
+    "for i in eachindex(x)\n",
+    "    y[i]=x[i]^2\n",
+    "end\n",
+    "y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "z = similar(x) \n",
+    "for i in 1:length(z)\n",
+    "    x[i]>.3 ? z[i]=0.0 : z[i]=x[i]\n",
+    "end\n",
+    "z"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# done as a one-liner via a dot-call:\n",
+    "@. z = (x<0.3)*x"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Bottom line:** logic and relational operators can be applied locally to each element of an array via \"dot-calls\"\n",
+    "\n",
+    "**Note:** logical truth is not equivalent to digital `1 or 0` as in Matlab (but you are free to adjust this as you please)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "toc-hr-collapsed": true
+   },
+   "source": [
+    "## Logic\n",
+    "There are many convenient methods for handling logic, in turn allowing us to write more complex code that does different calculations depending on the value of particular inputs. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 65,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Bool"
+      ]
+     },
+     "execution_count": 65,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "typeof(true)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 66,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(false, true, true)"
+      ]
+     },
+     "execution_count": 66,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#~ is logical not (also can use !)\n",
+    "~true,~false, ~~true"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 67,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(true, false, true)"
+      ]
+     },
+     "execution_count": 67,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# == tests for logical equivalence\n",
+    "true==true,true==false, true==~false"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The simplest way to evaluate logical `AND` is to multiply boolean values:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 68,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "false"
+      ]
+     },
+     "execution_count": 68,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "true*false #true AND false is false"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 69,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 69,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "true*true #true AND true is true"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 70,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "false"
+      ]
+     },
+     "execution_count": 70,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "false*false #false AND false is false"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This often means extra work, if our expressions for true and false come from testing a complicated expression."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Short-circuit operators\n",
+    "A more efficient binary operator for logical `AND` is \n",
+    "```julia\n",
+    "A && B\n",
+    "```\n",
+    "means `A AND B`. Thus it only evaluates the expression `B` if `A` is false. Hence it acts as a short circuit for evaluation, avoiding unnecessary computation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 75,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 75,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "milk = true; honey = true\n",
+    "milk*honey"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 76,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 76,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "milk && honey"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Local `A OR B` also has a short-circuit operator\n",
+    "\n",
+    "```julia\n",
+    "A || B\n",
+    "```\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 77,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "milk||honey"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 78,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "true"
+      ]
+     },
+     "execution_count": 78,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "!milk||honey"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Truth tables"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 79,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Truth table for logical AND:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "2×2 Array{Bool,2}:\n",
+       " 1  0\n",
+       " 0  0"
+      ]
+     },
+     "execution_count": 79,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#truth-table for booleans using array comprehension \n",
+    "bools=(true,false)\n",
+    "\n",
+    "#make a table using array comprehension\n",
+    "println(\"Truth table for logical AND:\")\n",
+    "ANDtruth = [i && j for i in bools, j in bools]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 80,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Truth table for logical OR:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "2×2 Array{Bool,2}:\n",
+       " 1  1\n",
+       " 1  0"
+      ]
+     },
+     "execution_count": 80,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "println(\"Truth table for logical OR:\")\n",
+    "ORtruth=[i || j for i in bools, j in bools]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ANDtruth.*ORtruth  #logical AND locally as a dot-call"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Next time\n",
+    "- Numerical representations and error\n",
+    "    - Accuracy versus precision\n",
+    "    - Roundoff error\n",
+    "    - Underflow, overflow\n",
+    "- Dimensional analysis\n",
+    "    - Dealing with large and small quantities in numerical modelling\n",
+    "    - examples..."
+   ]
+  }
+ ],
+ "metadata": {
+  "@webio": {
+   "lastCommId": "9f91b18f-e475-4bce-a1c6-ae4d320dfcae",
+   "lastKernelId": "60b96cc9-5b28-453a-87c9-122cf30c607a"
+  },
+  "kernelspec": {
+   "display_name": "Julia 1.3.1",
+   "language": "julia",
+   "name": "julia-1.3"
+  },
+  "language_info": {
+   "file_extension": ".jl",
+   "mimetype": "application/julia",
+   "name": "julia",
+   "version": "1.3.1"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
